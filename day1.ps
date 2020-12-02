@@ -1,0 +1,97 @@
+/dbg { pstack (\n) print} def
+/qdbg { pstack (\n) print quit } def
+/over { 1 index } def
+/2dup { 1 index 1 index } def
+/3dup { 2 index 2 index 2 index } def
+
+/f (day1.txt) (r) file def
+/lines [ { f 1024 string readline not { pop exit } if } loop ] def
+f closefile
+
+/input [ lines { cvi } forall ] def
+
+% part 1
+/TARGET_SUM 2020 def
+/count lines length def
+
+(\n=== PART 1 ===\n) print
+
+0 1 count 1 sub {
+    dup input exch get
+
+    over 1 add
+    1
+    count 1 sub {
+        input exch get
+        2dup add
+        TARGET_SUM eq {
+            mul 1024 string cvs print
+            (\n) print
+            true
+            exit
+        } if
+        pop
+    } for
+
+    % if we exited the inner loop early,
+    % clean up the stack and exit here too
+    dup true eq { pop pop exit } if
+
+    pop
+} for
+
+% part 2
+(\n=== PART 2 ===\n) print
+
+0
+1
+count 1 sub {
+    dup % i
+
+    1 add % i + 1
+    1
+    count 1 sub {
+        dup % j
+
+        1 add % j + 1
+        1
+        count 1 sub {
+            2 index input exch get
+            2 index input exch get
+            2 index input exch get
+
+            3dup
+            % precalculate product
+            mul mul
+
+            % rotate the stack to get the 3 entries to sum
+            4 1 roll
+            add add
+
+            TARGET_SUM eq {
+                1024 string cvs print
+                (\n) print
+                true exit
+            } {
+                % discard product
+                pop
+            } ifelse
+
+            pop % k
+        } for
+
+        dup true eq { exit } if
+
+        pop % j
+    } for
+
+    dup true eq {
+        pop % true
+        pop pop pop % k j i
+        exit
+    } if
+
+    pop % i
+} for
+
+quit

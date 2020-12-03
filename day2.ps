@@ -1,0 +1,151 @@
+/dbg { pstack (\n) print} def
+/qdbg { pstack (\n) print quit } def
+/over { 1 index } def
+/2dup { 1 index 1 index } def
+/3dup { 2 index 2 index 2 index } def
+
+/f (day2.txt) (r) file def
+/lines [ { f 1024 string readline not { pop exit } if } loop ] def
+f closefile
+
+%%%%%%%%%%%%%%%%
+% string utils %
+%%%%%%%%%%%%%%%%
+/chomp {
+    anchorsearch
+    not { (Failed to chomp ) print pstack quit } if
+    pop
+} def
+
+/keep_to {
+    3 1 roll % push conversion executable to end
+    search
+    not { (Failed to find search string ) print pstack quit } if
+    exch pop % discard search string
+    3 2 roll % get back the convert-y thingy
+    cvx exec % convert it to executable and run it
+    exch % swap accumulated value with rest of string
+} def
+
+/keep_to_int { /cvi keep_to } def
+/keep_to_str { {} keep_to } def
+
+% (string) (chr) count_in_str
+/count_in_str {
+    % counter at 0, move before token and string in stack
+    0
+    3 1 roll
+    % convert the single-length string token to int
+    0 get
+    % swap the search token and the string so we can iterate
+    exch
+    {
+        % dup the search token
+        1 index
+        eq {
+            % inc counter if we found it
+            exch 1 add exch
+        } if
+    } forall
+    % we don't need the target token anymore
+    pop
+} def
+
+% min max n in_range -> true/false
+/in_range {
+    dup
+    4 1 roll
+    ge
+    3 1 roll
+    ge
+    and
+} def
+
+%%%%%%%%%%
+% part 1 %
+%%%%%%%%%%
+
+/line_matches_rule {
+    aload
+    pop
+    exch
+    count_in_str
+    in_range
+} def
+
+% {min}-{max} {letter}: {password}
+/make_pwd_line {
+    [
+    5 1 roll
+    ]
+} def
+
+%1-3 a: abcde
+%1-3 b: cdefg
+%2-9 c: ccccccccc
+/parse_line {
+    (-) keep_to_int
+    ( ) keep_to_int
+    (: ) keep_to_str
+} def
+
+lines {
+    parse_line
+    make_pwd_line
+    line_matches_rule
+} forall
+
+% ugh lol inefficient way to count how many password matches
+[ count 1 roll ]
+% counter
+0 exch
+{
+    {
+        1 add
+    } if
+} forall
+
+(=== PART 1 ===\n) print
+(Valid passwords: ) print
+= (\n) print
+
+%%%%%%%%%%
+% part 2 %
+%%%%%%%%%%
+
+/line_matches_rule_p2 {
+    aload pop
+    % convert single char string to int
+    exch 0 get
+    exch
+    dup
+    % get first index of password
+    5 4 roll 1 sub get exch
+    4 3 roll 1 sub get
+    2 index
+    eq
+    3 1 roll
+    eq
+    xor
+} def
+
+lines {
+    parse_line
+    make_pwd_line
+    line_matches_rule_p2
+} forall
+
+% ugh lol inefficient way to count how many password matches
+[ count 1 roll ]
+% counter
+0 exch
+{
+    {
+        1 add
+    } if
+} forall
+
+(Valid passwords: ) print
+= (\n) print
+
+quit

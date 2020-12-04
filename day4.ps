@@ -1,0 +1,115 @@
+/dbg { pstack (\n) print} def
+/qdbg { pstack (\n) print quit } def
+/over { 1 index } def
+/2dup { 1 index 1 index } def
+/3dup { 2 index 2 index 2 index } def
+
+/f (day4.txt) (r) file def
+
+% read file into array of passports, each one an array of lines that compose it
+/input [
+% start array to hold first passport
+[
+{
+    f 1024 string readline
+
+    % eof
+    not {
+        % get rid of the last new line if there is one
+        dup () eq { pop } if
+        ]
+        exit
+    } if
+
+    dup () eq {
+        % with an empty line, end the current passport and start the next one
+        pop % we don't need the empty line
+        ] [
+    } {
+        % accumulate part of passport
+    } ifelse
+} loop
+
+] def
+
+f closefile
+
+/passports [
+% now convert each passport array into an array of passport fields
+input {
+    % create a new mark to hold this passport's pieces
+    [ exch
+    {
+        % split current line into parts
+        {
+            ( ) search
+            not {
+                exit
+            } {
+                % discard space, and then loop again on rest of string
+                exch pop exch
+            } ifelse
+        } loop
+    } forall
+    % done looping over this passport, end the array
+    ]
+} forall
+
+] def
+
+%%%%%%%%%%%%%%%%%%%%%%%%
+% passport array utils %
+%%%%%%%%%%%%%%%%%%%%%%%%
+
+/passport_array_to_dict {
+    /passport 8 dict def
+    {
+        passport exch
+        (:) search
+        not {
+            (\nexpected :, not found!\n) print
+            dbg
+            (\n--exiting early--\n) print quit
+        } if
+
+        % discard colon
+        exch pop
+        cvn exch
+        put
+    } forall
+    passport
+} def
+
+/has_all_required_fields {
+    % we now have the passport dict on the stack
+    % check for all the required fields
+    dup /byr known exch
+    dup /iyr known exch
+    dup /eyr known exch
+    dup /hgt known exch
+    dup /hcl known exch
+    dup /ecl known exch
+    % don't need the dict anymore, so 'consume' it
+    /pid known exch
+
+    % combine all the bools on the stack
+    6 { and } repeat
+} def
+
+%%%%%%%%%%
+% part 1 %
+%%%%%%%%%%
+
+0
+passports {
+    passport_array_to_dict
+    has_all_required_fields
+    {
+        1 add
+    } if
+} forall
+
+(--- part 1 ---\n) print
+(valid passports: ) print =
+
+quit

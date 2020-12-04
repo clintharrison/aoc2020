@@ -1,0 +1,121 @@
+/dbg { pstack (\n) print} def
+/qdbg { pstack (\n) print quit } def
+/over { 1 index } def
+/2dup { 1 index 1 index } def
+/3dup { 2 index 2 index 2 index } def
+
+/f (day3.txt) (r) file def
+/lines [ { f 1024 string readline not { pop exit } if } loop ] def
+f closefile
+
+%%%%%%%%%%%%%%%%
+% string utils %
+%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%
+% part 1 %
+%%%%%%%%%%
+
+/TREE (#) 0 get def
+
+0
+
+0
+1
+lines length 1 sub {
+    % get the current line
+    dup lines exch get
+    exch 3 mul 1 index length mod
+    get
+    TREE eq { 1 add } if
+} for
+
+(=== PART 1 ===\n) print
+(Trees encountered: ) print =
+
+% stack is empty here
+
+%%%%%%%%%%
+% part 2 %
+%%%%%%%%%%
+
+0 % counter
+
+0
+1
+lines length 1 sub {
+    % get the current line
+    dup lines exch get
+    % get i back
+    exch
+    1 mul 1 index length mod
+    get
+    TREE eq { 1 add } if
+} for
+
+0
+
+0
+1
+lines length 1 sub {
+    % get the current line
+    dup lines exch get
+    % get i back
+    exch
+    3 mul 1 index length mod
+    get
+    TREE eq { 1 add } if
+} for
+
+0
+
+0
+1
+lines length 1 sub {
+    % get the current line
+    dup lines exch get
+    % get i back
+    exch
+    5 mul 1 index length mod
+    get
+    TREE eq { 1 add } if
+} for
+
+0
+
+0
+1
+lines length 1 sub {
+    % get the current line
+    dup lines exch get
+    % get i back
+    exch
+    7 mul 1 index length mod
+    get
+    TREE eq { 1 add } if
+} for
+
+0
+
+0
+1
+lines length 1 sub {
+    dup 2 mod 0 ne {
+        pop
+    } {
+        % get the current line
+        dup lines exch get
+        % get i back
+        exch
+        2 idiv 1 index length mod
+        get
+        TREE eq { 1 add } if
+    } ifelse
+} for
+
+
+(=== PART 2 ===\n) print
+(Product of trees encountered: ) print
+4 { mul } repeat =
+
+quit

@@ -1,0 +1,111 @@
+(util.ps) run
+
+/f (day5.txt) (r) file def
+/lines [ { f 1024 string readline not { pop exit } if } loop ] def
+f closefile
+
+%%%%%%%%%%
+% part 1 %
+%%%%%%%%%%
+
+(=== PART 1 ===\n) print
+
+% (seat line) [lower bound] [upper bound] [start index] [end index] bsp
+% requires /keep_lower character to be defined
+% 
+% (FBFBBFFRLR) 0 127 0 6 bsp -> (FBFBBFFRLR) 44
+/bsp {
+    % loop start/end on stack, insert increment-by-1 between
+    1 exch
+    {
+        3 index exch get
+        keep_lower eq {
+            2dup
+            exch sub 1 add
+            2 idiv
+            sub
+        } {
+            2dup
+            exch sub 1 add
+            2 idiv
+            3 2 roll add
+            exch
+        } ifelse
+    } for
+
+    pop
+} def
+
+lines {
+    /keep_lower (F) 0 get def
+    0 127
+    0 6
+    bsp
+
+    exch
+    /keep_lower (L) 0 get def
+    0 7
+    7 9
+    bsp
+
+    % print current line
+    exch print
+    (: row ) print
+
+    % calculate seat ID
+    exch 2dup 8 mul add
+
+    % print row
+    exch 10 string cvs print
+    (, column ) print
+    exch 10 string cvs print
+    (, seat ID ) print
+    dup % keep the seat ID
+    10 string cvs print
+    (\n) print
+} forall
+
+% stack now consists of all seat IDs
+% put them al in an array
+count array astore
+
+quicksort
+% save array for part 2
+dup
+% get the last item, the highest seat ID
+dup length 1 sub get
+
+(\nhighest seat ID: ) print =
+
+%%%%%%%%%%
+% part 2 %
+%%%%%%%%%%
+
+(\n=== PART 2 ===\n) print
+dup length 0 1
+3 2 roll
+2 sub
+{
+    dup
+    % get current seat
+    2 index exch get
+    % get next seat
+    exch
+    2 index exch 1 add get
+
+    % diff between current seat and next one
+    1 index sub
+    % if we jump by 2, we found the missing sesat
+    2 eq {
+        (\nMy seat ID: ) print
+        1 add
+        =
+    } {
+        pop
+    } ifelse
+} for
+
+% don't need the seat IDs anymore
+pop
+qdbg
+quit

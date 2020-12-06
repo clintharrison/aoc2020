@@ -1,0 +1,129 @@
+(util.ps) run
+
+/f (day6.txt) (r) file def
+
+% start first group
+[
+{
+    f 1024 string readline
+    % eof
+    not {
+        % discard empty line if present
+        dup () eq { pop } if
+        exit
+    } if
+
+    dup () eq {
+        % skip empty line
+        pop
+        % end group and start next
+        ] [
+    } if
+} loop
+% end last group
+]
+
+f closefile
+
+count array astore
+/answers exch def
+
+% part 1
+(--- PART 1 ---\n) print
+
+% flatten group answers as sorted array of character values
+answers
+{
+    [ exch
+
+    {
+        { } forall
+    } forall
+
+    ]
+    quicksort
+} forall
+
+count array astore
+/flattened_answer_groups exch def
+
+% discard duplicates in each answer group
+flattened_answer_groups
+{
+    [
+    % loop over answers
+    exch {
+        2dup eq {
+            pop
+        } if
+    } forall
+    ]
+} forall
+
+% add up counts of each
+count array astore
+/deduped_answer_groups exch def
+
+% sum
+0
+deduped_answer_groups {
+    length add
+} forall
+
+(Sum of counts: ) print ==
+
+% part 2
+(--- PART 2 ---\n) print
+
+% [97 98 98 99] array_to_counter -> << 98 1 98 2 99 1 >>
+/array_to_counter {
+    /counter over length dict def
+
+    {
+        counter over known {
+            counter exch dup counter exch get 1 add put
+        } {
+            counter exch 1 put
+        } ifelse
+    } forall
+
+    counter
+} def
+
+/all_yes_count 0 def
+
+0 1 answers length 1 sub {
+    dup
+    answers exch get length
+    /group_size exch def
+
+    flattened_answer_groups exch get
+    array_to_counter
+    % dup ===
+    {
+        dup
+        group_size eq {
+            /all_yes_count all_yes_count 1 add def
+
+            (success! got ) print
+            10 string cvs print
+            ( answers for )
+            print 10 string cvs print
+            (\n) print
+        } {
+            (uh oh! got ) print
+            10 string cvs print
+            ( answers for ) print
+            10 string cvs print
+            (, expected ) print
+            group_size 10 string cvs print
+            (\n) print
+        } ifelse
+    } forall
+} for
+
+(\nSum of counts: ) print
+all_yes_count ===
+qdbg
+
+quit

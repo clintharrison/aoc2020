@@ -1,0 +1,56 @@
+(util.ps) run
+
+/f (day7s.txt) (r) file def
+/lines
+[
+    {
+        f 1024 string readline
+        not { pop exit } if
+        % skip empty line
+        dup () eq { pop } if
+    } loop
+] def
+f closefile
+
+% (1 bright white bag, 2 muted yellow bags)
+% parse_contains
+% -> [[(bright white), 1], [(muted yellow), 2]]
+%
+% (1 shiny gold bag.)
+% parse_contains
+% -> [[1, (shiny gold)]]
+%
+% (no other bags)
+% parse_contains
+% -> []
+/parse_contains {
+    dup (no other bags.) eq {
+        pop
+        []
+    } {
+        [ exch
+        (, ) strsplit {
+            [ exch
+            ( bag) strsplit 0 get
+            ( ) search {
+                exch pop
+                cvi
+            } { (unexpected!\n) print quit } ifelse
+            ]
+        } forall
+        ]
+    } ifelse
+} def
+
+lines {
+    ( bags contain ) search
+    not { (error\n) print qdbg } if
+
+    exch pop % discard matched string
+    /color exch def
+    parse_contains
+
+    color print ( -> ) print ===
+} forall
+
+qdbg

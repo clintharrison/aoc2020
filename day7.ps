@@ -1,6 +1,6 @@
 (util.ps) run
 
-/f (day7s.txt) (r) file def
+/f (day7.txt) (r) file def
 /lines
 [
     {
@@ -12,17 +12,6 @@
 ] def
 f closefile
 
-% (1 bright white bag, 2 muted yellow bags)
-% parse_contains
-% -> [[(bright white), 1], [(muted yellow), 2]]
-%
-% (1 shiny gold bag.)
-% parse_contains
-% -> [[1, (shiny gold)]]
-%
-% (no other bags)
-% parse_contains
-% -> []
 /parse_contains {
     dup (no other bags.) eq {
         pop
@@ -42,15 +31,87 @@ f closefile
     } ifelse
 } def
 
+% forward direction, same as the input
+/contains lines length dict def
+/contained_by lines length dict def
+
 lines {
     ( bags contain ) search
     not { (error\n) print qdbg } if
 
     exch pop % discard matched string
     /color exch def
-    parse_contains
+    parse_contains {
+        /clr 1 index 0 get def
+        /cnt    exch 1 get def
 
-    color print ( -> ) print ===
+        contains color known {
+            contains color
+            contains color get dup clr cnt put
+            put
+        } {
+            contains color
+            1 dict dup clr cnt put
+            put
+        } ifelse
+
+        contained_by clr known {
+            contained_by clr
+            contained_by clr get [color] array_concat
+            put
+        } {
+            contained_by clr [color] put
+        } ifelse
+    } forall
 } forall
 
-qdbg
+/seen 10 dict def
+
+
+/populate_seen_helper {
+    % color is on the stack
+    dup contained_by exch known {
+        contained_by exch get {
+            dup
+            seen exch true put
+            populate_seen_helper
+        } forall
+    } {
+        pop
+    } ifelse
+} def
+
+(shiny gold) populate_seen_helper
+
+(=== PART 1 ===\n) print
+(Bag colors eventually containing a 'shiny gold' bag: ) print
+seen length ===
+
+(=== PART 2 ===\n) print
+
+% color on stack
+/bags_inside {
+    0 exch
+    % loop over each bag inside the current one
+    dup contains exch known {
+
+        contains exch get {
+            /cnt exch def
+            /clr exch def
+
+            cnt add
+            cnt clr bags_inside mul
+            add
+        } forall
+    } {
+        pop
+    } ifelse
+} def
+
+(shiny gold) bags_inside
+
+('shiny gold' contains ) print
+100 string cvs print
+( other bags\n) print
+
+quit

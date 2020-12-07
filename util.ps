@@ -90,3 +90,14 @@
     } loop
     ]
 } def
+
+% (abcdef) (def) ends_with -> true
+% (abcdef) (fed) ends_with -> false
+/ends_with {
+    exch
+    over length over length
+    over sub
+    exch
+    getinterval
+    eq
+} def

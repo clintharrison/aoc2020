@@ -101,3 +101,21 @@
     getinterval
     eq
 } def
+
+% [1 2 3] [4 5 6] array_concat -> [1 2 3 4 5 6]
+% this is ridiculous sorry
+/array_concat {
+    1 index length % a
+    1 index length % b
+    1 index add % b + a'
+    array % final array length
+    % insert first array
+    dup
+    0
+    6 -1 roll
+    putinterval
+    % keep a copy of the final array, roll and insert at the end
+    dup
+    4 2 roll exch
+    putinterval
+} def

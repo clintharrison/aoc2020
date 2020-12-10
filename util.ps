@@ -119,3 +119,34 @@
     4 2 roll exch
     putinterval
 } def
+
+% [(1) (2)] {cvi} array_map -> [1 2]
+/array_map {
+    /proc exch def
+    dup length dup array
+    % 0 1 len-1
+    exch 0 exch 1 exch 1 sub
+    {
+        dup
+        3 index exch get
+        proc exec
+        2 index
+        3 1 roll
+        put
+    } for
+    exch pop % discard original array
+} def
+
+% [1 2 3 4] 3 in_array -> true
+% [1 2 3 4] 0 in_array -> true
+/in_array {
+    false
+    3 2 roll
+    {
+        2 index
+        eq
+        or
+    } forall
+    % discard needle
+    exch pop
+} def

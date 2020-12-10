@@ -1,0 +1,50 @@
+(util.ps) run
+
+/f (day10.txt) (r) file def
+/lines
+[
+    {
+        f 1024 string readline
+        not { pop exit } if
+        % skip empty line
+        dup () eq { pop } if
+    } loop
+] def
+f closefile
+
+/input lines {cvi} array_map def
+
+% part 1
+/counter << 1 0 3 0 >> def
+input quicksort
+% seat is 0 jolts
+[0] exch array_concat
+% device is 3 above max
+dup dup length 1 sub get 3 add
+[ exch ] array_concat
+
+0 1 2 index length 2 sub
+{
+    dup 1 add
+    2 index exch get
+    exch 2 index exch get
+    sub
+    % get current count
+    dup counter exch get
+    1 add
+    counter
+    3 1 roll put
+} for
+
+pop
+
+% counts in counter now
+counter 1 get
+counter 3 get
+mul
+(Part 1) =
+(1-jolt differences: ) print counter 1 get =
+(3-jolt differences: ) print counter 3 get =
+(product: ) print =
+qdbg
+quit
